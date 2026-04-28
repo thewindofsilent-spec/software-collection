@@ -107,10 +107,37 @@ class MainWindow(QMainWindow):
     def display_hex_data(self, lines: list):
         self.text_edit.setPlainText("\n".join(lines))
 
+    def _format_dict_list(self, obj, indent=0):
+        """Format dict/list with newlines after commas, like a text formatter."""
+        spaces = "    " * indent
+        if isinstance(obj, dict):
+            lines = ["{"]
+            for k, v in obj.items():
+                comma = "," if list(obj.keys())[-1] != k else ""
+                if isinstance(v, (dict, list)):
+                    formatted = self._format_dict_list(v, indent + 1)
+                    lines.append(f'{spaces}    "{k}": {formatted}{comma}')
+                else:
+                    lines.append(f'{spaces}    "{k}": {repr(v)}{comma}')
+            lines.append(spaces + "}")
+            return "\n".join(lines)
+        elif isinstance(obj, list):
+            lines = ["["]
+            for i, item in enumerate(obj):
+                comma = "," if i < len(obj) - 1 else ""
+                if isinstance(item, (dict, list)):
+                    formatted = self._format_dict_list(item, indent + 1)
+                    lines.append(f'{spaces}    {formatted}{comma}')
+                else:
+                    lines.append(f'{spaces}    {repr(item)}{comma}')
+            lines.append(spaces + "]")
+            return "\n".join(lines)
+        else:
+            return repr(obj)
+
     def display_pickle_data(self, content):
-        import json
         if isinstance(content, (dict, list)):
-            self.text_edit.setPlainText(json.dumps(content, indent=2, ensure_ascii=False))
+            self.text_edit.setPlainText(self._format_dict_list(content))
         else:
             self.text_edit.setPlainText(repr(content))
 
