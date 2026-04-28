@@ -35,6 +35,7 @@ class MainWindow(QMainWindow):
 
     file_selected = Signal(str)
     parser_changed = Signal(str)
+    refresh_requested = Signal()
 
     def __init__(self):
         super().__init__()
@@ -56,6 +57,8 @@ class MainWindow(QMainWindow):
         self.lbl_file.setStyleSheet("color: gray;")
 
         toolbar.addWidget(self.btn_open)
+        self.btn_refresh = QPushButton("Refresh")
+        toolbar.addWidget(self.btn_refresh)
         toolbar.addWidget(QLabel("Parser:"))
         toolbar.addWidget(self.combo_parser)
         toolbar.addWidget(self.lbl_file, stretch=1)
@@ -69,12 +72,16 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.text_edit)
 
         self.btn_open.clicked.connect(self._on_open_clicked)
+        self.btn_refresh.clicked.connect(self._on_refresh_clicked)
         self.combo_parser.currentTextChanged.connect(self._on_parser_changed)
 
     def _on_open_clicked(self):
         path, _ = QFileDialog.getOpenFileName(self, "Select Data File")
         if path:
             self.file_selected.emit(path)
+
+    def _on_refresh_clicked(self):
+        self.refresh_requested.emit()
 
     def _on_parser_changed(self, parser_name: str):
         if parser_name:

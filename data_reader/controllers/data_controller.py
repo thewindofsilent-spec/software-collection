@@ -13,6 +13,7 @@ class DataController:
 
         self._view.file_selected.connect(self.on_file_selected)
         self._view.parser_changed.connect(self.on_parser_changed)
+        self._view.refresh_requested.connect(self.on_refresh)
 
         self._view.set_parsers(self._model.get_parser_names())
 
@@ -56,3 +57,8 @@ class DataController:
             self._view.display_pickle_data(data.get("content"))
         elif data_type == "hex":
             self._view.display_hex_data(data.get("lines", []))
+
+    def on_refresh(self):
+        parser = self._model.get_current_parser()
+        if parser and self._model.get_current_file():
+            self.load_data(parser)
