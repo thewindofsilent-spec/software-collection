@@ -16,7 +16,11 @@ from PySide6.QtGui import QGuiApplication, QImage, QPixmap
 from PySide6.QtQml import QQmlApplicationEngine
 from PySide6.QtQuick import QQuickImageProvider
 
+<<<<<<< HEAD
 import cv2
+=======
+from PIL import Image
+>>>>>>> 60c7948fc72e4c8b19848527e72c3430dbdb4c55
 
 from backend.yolo_manager import YOLOManager
 from backend.annotation_manager import AnnotationManager
@@ -343,9 +347,16 @@ class AutoLabelController(QObject):
         self.image_list_model._set_selected_index(index)
 
         # 获取图像尺寸
+<<<<<<< HEAD
         img = cv2.imread(item.path)
         self._current_image_size = img.shape[1], img.shape[0]
         self.annotation_manager.set_image_size(*self._current_image_size)
+=======
+        img = Image.open(item.path)
+        self._current_image_size = img.size
+        self.annotation_manager.set_image_size(*self._current_image_size)
+        img.close()
+>>>>>>> 60c7948fc72e4c8b19848527e72c3430dbdb4c55
 
         self.annotationChanged.emit()
 
@@ -409,8 +420,13 @@ class AutoLabelController(QObject):
         )
 
     # ==================== 自动标注Slot ====================
+<<<<<<< HEAD
     @Slot(str, str, float, float, int, bool, float)
     def startAutoLabel(self, imageDir: str, outputDir: str, conf: float, iou: float, maxDet: int, detectKeypoints: bool, confKeypoints: float):
+=======
+    @Slot(str, str, float, float, int)
+    def startAutoLabel(self, imageDir: str, outputDir: str, conf: float, iou: float, maxDet: int):
+>>>>>>> 60c7948fc72e4c8b19848527e72c3430dbdb4c55
         """启动批量自动标注（后台线程）"""
         if self._is_auto_labeling or not self._model_loaded:
             return
@@ -422,8 +438,11 @@ class AutoLabelController(QObject):
         settings.set("auto_label.conf", conf)
         settings.set("auto_label.iou", iou)
         settings.set("auto_label.max_det", maxDet)
+<<<<<<< HEAD
         settings.set("auto_label.detect_keypoints", detectKeypoints)
         settings.set("auto_label.conf_keypoints", confKeypoints)
+=======
+>>>>>>> 60c7948fc72e4c8b19848527e72c3430dbdb4c55
         settings.set("paths.last_output_dir", outputDir)
 
         images = list_images_in_directory(imageDir)
@@ -451,8 +470,12 @@ class AutoLabelController(QObject):
         # 后台线程执行批量推理
         self.yolo_manager.batch_predict(
             image_paths=images, output_dir=outputDir, conf=conf, iou=iou,
+<<<<<<< HEAD
             max_det=maxDet, detect_keypoints=detectKeypoints, conf_keypoints=confKeypoints,
             progress_callback=on_progress, finished_callback=on_finished,
+=======
+            max_det=maxDet, progress_callback=on_progress, finished_callback=on_finished,
+>>>>>>> 60c7948fc72e4c8b19848527e72c3430dbdb4c55
         )
 
     # ==================== 数据集转换Slot ====================

@@ -10,23 +10,32 @@ class DatasetConverter:
     def __init__(self):
         self.class_names: List[str] = []
         self.class_to_index: Dict[str, int] = {}
+<<<<<<< HEAD
         self.keypoint_names: List[str] = []
         self.num_keypoints: int = 0
+=======
+>>>>>>> 60c7948fc72e4c8b19848527e72c3430dbdb4c55
 
     def set_class_names(self, class_names: List[str]) -> None:
         self.class_names = class_names
         self.class_to_index = {name: idx for idx, name in enumerate(class_names)}
 
+<<<<<<< HEAD
     def set_keypoint_names(self, keypoint_names: List[str]) -> None:
         self.keypoint_names = keypoint_names
         self.num_keypoints = len(keypoint_names)
 
+=======
+>>>>>>> 60c7948fc72e4c8b19848527e72c3430dbdb4c55
     def convert_labelme_to_yolo(
         self,
         image_dir: str,
         output_dir: str,
         class_names: Optional[List[str]] = None,
+<<<<<<< HEAD
         keypoint_names: Optional[List[str]] = None,
+=======
+>>>>>>> 60c7948fc72e4c8b19848527e72c3430dbdb4c55
         copy_images: bool = False,
     ) -> bool:
         try:
@@ -43,11 +52,14 @@ class DatasetConverter:
             elif not self.class_names:
                 self._discover_classes(image_dir)
 
+<<<<<<< HEAD
             if keypoint_names:
                 self.set_keypoint_names(keypoint_names)
             elif self.num_keypoints == 0:
                 self._discover_keypoints(image_dir)
 
+=======
+>>>>>>> 60c7948fc72e4c8b19848527e72c3430dbdb4c55
             if not self.class_names:
                 print("No classes found!")
                 return False
@@ -109,6 +121,7 @@ class DatasetConverter:
         self.class_names = sorted(list(classes_set))
         self.class_to_index = {name: idx for idx, name in enumerate(self.class_names)}
 
+<<<<<<< HEAD
     def _discover_keypoints(self, image_dir: str) -> None:
         kp_set = set()
         for img_file in os.listdir(image_dir):
@@ -134,11 +147,14 @@ class DatasetConverter:
             self.keypoint_names = [f"kp_{i}" for i in range(max_idx)]
             self.num_keypoints = max_idx
 
+=======
+>>>>>>> 60c7948fc72e4c8b19848527e72c3430dbdb4c55
     def _annotation_to_yolo_lines(self, annotation: Annotation) -> List[str]:
         lines = []
         img_width = annotation.image_width or 1
         img_height = annotation.image_height or 1
 
+<<<<<<< HEAD
         # 收集所有点和框，按group_id分组
         rectangles = {}  # group_id -> (class_id, x_center, y_center, width, height)
         keypoints_by_group = {}  # group_id -> [(x, y), ...]
@@ -193,6 +209,30 @@ class DatasetConverter:
                 lines.append(" ".join(parts))
             else:
                 lines.append(f"{class_id} {x_center:.6f} {y_center:.6f} {width:.6f} {height:.6f}")
+=======
+        for shape in annotation.shapes:
+            if shape.shape_type != "rectangle":
+                continue
+
+            if shape.label not in self.class_to_index:
+                continue
+
+            class_id = self.class_to_index[shape.label]
+            x1, y1 = shape.points[0].x, shape.points[0].y
+            x2, y2 = shape.points[1].x, shape.points[1].y
+
+            x_center = (x1 + x2) / 2 / img_width
+            y_center = (y1 + y2) / 2 / img_height
+            width = abs(x2 - x1) / img_width
+            height = abs(y2 - y1) / img_height
+
+            x_center = max(0, min(1, x_center))
+            y_center = max(0, min(1, y_center))
+            width = max(0, min(1, width))
+            height = max(0, min(1, height))
+
+            lines.append(f"{class_id} {x_center:.6f} {y_center:.6f} {width:.6f} {height:.6f}")
+>>>>>>> 60c7948fc72e4c8b19848527e72c3430dbdb4c55
 
         return lines
 
@@ -207,6 +247,7 @@ names:
         for idx, name in enumerate(self.class_names):
             yaml_content += f"  {idx}: {name}\n"
 
+<<<<<<< HEAD
         if self.num_keypoints > 0:
             yaml_content += f"\nkpt_shape: [{self.num_keypoints}, 2]\n"
             if self.keypoint_names:
@@ -214,6 +255,8 @@ names:
                 for i, name in enumerate(self.keypoint_names):
                     yaml_content += f"# {i}: {name}\n"
 
+=======
+>>>>>>> 60c7948fc72e4c8b19848527e72c3430dbdb4c55
         yaml_path = os.path.join(output_dir, "dataset.yaml")
         with open(yaml_path, "w") as f:
             f.write(yaml_content)

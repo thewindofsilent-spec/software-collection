@@ -2,3 +2,7 @@ PySide6>=6.5.0
 ultralytics>=8.0.0
 opencv-python>=4.8.0
 numpy>=1.24.0
+<<<<<<< HEAD
+=======
+Pillow>=10.0.0
+>>>>>>> 60c7948fc72e4c8b19848527e72c3430dbdb4c55

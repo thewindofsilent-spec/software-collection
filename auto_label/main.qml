@@ -180,7 +180,10 @@ ApplicationWindow {
                 anchors.centerIn: parent
                 width: mainWindow.width * imageViewer.scaleFactor
                 height: mainWindow.height * imageViewer.scaleFactor
+<<<<<<< HEAD
                 clip: true
+=======
+>>>>>>> 60c7948fc72e4c8b19848527e72c3430dbdb4c55
                 color: "#1a1a1a"
                 transform: Translate {
                     x: imageViewer.panOffset.x
@@ -479,6 +482,7 @@ ApplicationWindow {
         }
 
         ProgressBar {
+<<<<<<< HEAD
             id: autoLabelProgressBar
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: trainProgressBar.left
@@ -490,6 +494,8 @@ ApplicationWindow {
         }
 
         ProgressBar {
+=======
+>>>>>>> 60c7948fc72e4c8b19848527e72c3430dbdb4c55
             id: trainProgressBar
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: parent.right
@@ -499,6 +505,20 @@ ApplicationWindow {
             visible: controller.isTraining
             value: controller.trainProgress
         }
+<<<<<<< HEAD
+=======
+
+        ProgressBar {
+            id: autoLabelProgressBar
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.right: parent.right
+            anchors.rightMargin: 10
+            width: 200
+            height: 16
+            visible: controller.isAutoLabeling
+            value: controller.autoLabelProgress
+        }
+>>>>>>> 60c7948fc72e4c8b19848527e72c3430dbdb4c55
     }
 
     // ========== 对话框 ==========

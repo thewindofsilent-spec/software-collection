@@ -9,7 +9,11 @@ Dialog {
     standardButtons: Dialog.Ok | Dialog.Cancel
     modal: true
     width: 450
+<<<<<<< HEAD
     height: 420
+=======
+    height: 350
+>>>>>>> 60c7948fc72e4c8b19848527e72c3430dbdb4c55
 
     property string sourceDir: ""
     property string outputDir: ""
@@ -146,6 +150,7 @@ Dialog {
                 value: 300
                 Layout.fillWidth: true
             }
+<<<<<<< HEAD
 
             Label {
                 text: "Detect Keypoints:"
@@ -184,6 +189,8 @@ Dialog {
                     Layout.preferredWidth: 50
                 }
             }
+=======
+>>>>>>> 60c7948fc72e4c8b19848527e72c3430dbdb4c55
         }
 
         Rectangle {
@@ -258,9 +265,13 @@ Dialog {
             outputDir,
             confSlider.value,
             iouSlider.value,
+<<<<<<< HEAD
             maxDetSpin.value,
             detectKeypointsCheck.checked,
             keypointConfSlider.value
+=======
+            maxDetSpin.value
+>>>>>>> 60c7948fc72e4c8b19848527e72c3430dbdb4c55
         )
     }
 

@@ -44,6 +44,10 @@ pip install -r requirements.txt
 - ultralytics >= 8.0.0 (YOLOv8/v11)
 - opencv-python >= 4.8.0
 - numpy >= 1.24.0
+<<<<<<< HEAD
+=======
+- Pillow >= 10.0.0
+>>>>>>> 60c7948fc72e4c8b19848527e72c3430dbdb4c55
 
 ## 运行程序
 
@@ -240,4 +244,8 @@ A: 使用"文件 → 保存配置..."可以将当前配置保存为新文件，�
 - **UI**: QML (Qt 6.5+)
 - **后端**: Python + PySide6
 - **深度学习**: ultralytics (YOLOv8/v11)
+<<<<<<< HEAD
 - **图像处理**: OpenCV
+=======
+- **图像处理**: OpenCV, Pillow
+>>>>>>> 60c7948fc72e4c8b19848527e72c3430dbdb4c55

@@ -2,7 +2,11 @@ import os
 import threading
 import time
 from typing import List, Optional, Dict, Any, Callable
+<<<<<<< HEAD
 import cv2
+=======
+from PIL import Image
+>>>>>>> 60c7948fc72e4c8b19848527e72c3430dbdb4c55
 from ultralytics import YOLO
 from models.annotation import Annotation, Shape, Point
 from backend.utils import get_json_path, ensure_dir
@@ -136,8 +140,11 @@ class YOLOManager:
         conf: float = 0.25,
         iou: float = 0.45,
         max_det: int = 300,
+<<<<<<< HEAD
         detect_keypoints: bool = True,
         conf_keypoints: float = 0.25,
+=======
+>>>>>>> 60c7948fc72e4c8b19848527e72c3430dbdb4c55
     ) -> Optional[Annotation]:
         if not self.model:
             return None
@@ -155,8 +162,14 @@ class YOLOManager:
                 return None
 
             result = results[0]
+<<<<<<< HEAD
             img = cv2.imread(image_path)
             height, width = img.shape[:2]
+=======
+            img = Image.open(image_path)
+            width, height = img.size
+            img.close()
+>>>>>>> 60c7948fc72e4c8b19848527e72c3430dbdb4c55
 
             annotation = Annotation(
                 version="5.2.0",
@@ -184,6 +197,7 @@ class YOLOManager:
                     )
                     annotation.shapes.append(shape)
 
+<<<<<<< HEAD
             if detect_keypoints and result.keypoints is not None:
                 keypoints_data = result.keypoints.data.cpu().numpy()
                 keypoints_conf = result.keypoints.conf.cpu().numpy()
@@ -199,6 +213,18 @@ class YOLOManager:
                                 points=[Point(float(x), float(y))],
                             )
                             annotation.shapes.append(shape)
+=======
+            if result.keypoints is not None:
+                keypoints = result.keypoints.xy.cpu().numpy()
+                for i, kp in enumerate(keypoints):
+                    for j, (x, y) in enumerate(kp):
+                        shape = Shape(
+                            label=str(j),
+                            shape_type="point",
+                            points=[Point(float(x), float(y))],
+                        )
+                        annotation.shapes.append(shape)
+>>>>>>> 60c7948fc72e4c8b19848527e72c3430dbdb4c55
 
             return annotation
 
@@ -213,8 +239,11 @@ class YOLOManager:
         conf: float = 0.25,
         iou: float = 0.45,
         max_det: int = 300,
+<<<<<<< HEAD
         detect_keypoints: bool = True,
         conf_keypoints: float = 0.25,
+=======
+>>>>>>> 60c7948fc72e4c8b19848527e72c3430dbdb4c55
         progress_callback: Optional[Callable[[int, int], None]] = None,
         finished_callback: Optional[Callable[[int, int], None]] = None,
     ) -> int:
@@ -229,7 +258,11 @@ class YOLOManager:
             total = len(image_paths)
 
             for i, img_path in enumerate(image_paths):
+<<<<<<< HEAD
                 annotation = self.predict(img_path, conf, iou, max_det, detect_keypoints, conf_keypoints)
+=======
+                annotation = self.predict(img_path, conf, iou, max_det)
+>>>>>>> 60c7948fc72e4c8b19848527e72c3430dbdb4c55
 
                 if annotation:
                     json_path = get_json_path(img_path)
