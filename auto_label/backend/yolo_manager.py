@@ -1,0 +1,208 @@
+import os
+import threading
+from typing import List, Optional, Dict, Any, Callable
+from PIL import Image
+from ultralytics import YOLO
+from ..models.annotation import Annotation, Shape, Point
+from .utils import get_json_path, ensure_dir
+
+
+class YOLOManager:
+    def __init__(self):
+        self.model: Optional[Any] = None
+        self.model_path: Optional[str] = None
+        self.is_training: bool = False
+        self.is_inferencing: bool = False
+        self._train_thread: Optional[threading.Thread] = None
+        self._infer_thread: Optional[threading.Thread] = None
+
+    def load_model(self, model_path: str) -> bool:
+        try:
+            if not os.path.exists(model_path):
+                return False
+            self.model = YOLO(model_path)
+            self.model_path = model_path
+            return True
+        except Exception as e:
+            print(f"Error loading model: {e}")
+            return False
+
+    def train(
+        self,
+        data_yaml: str,
+        epochs: int,
+        batch: int,
+        imgsz: int,
+        workers: int,
+        patience: int,
+        project: str,
+        name: str,
+        device: str,
+        progress_callback: Optional[Callable] = None,
+        finished_callback: Optional[Callable] = None,
+    ) -> Optional[str]:
+        if self.is_training:
+            return None
+
+        self.is_training = True
+
+        def train_task():
+            try:
+                results = self.model.train(
+                    data=data_yaml,
+                    epochs=epochs,
+                    batch=batch,
+                    imgsz=imgsz,
+                    workers=workers,
+                    patience=patience,
+                    project=project,
+                    name=name,
+                    device=device,
+                    verbose=True,
+                )
+
+                best_model_path = os.path.join(project, name, "weights", "best.pt")
+
+                if os.path.exists(best_model_path):
+                    if finished_callback:
+                        finished_callback(best_model_path)
+                else:
+                    if finished_callback:
+                        finished_callback(None)
+
+            except Exception as e:
+                print(f"Training error: {e}")
+                if finished_callback:
+                    finished_callback(None)
+            finally:
+                self.is_training = False
+
+        self._train_thread = threading.Thread(target=train_task, daemon=True)
+        self._train_thread.start()
+        return "training_started"
+
+    def stop_training(self) -> None:
+        self.is_training = False
+
+    def predict(
+        self,
+        image_path: str,
+        conf: float = 0.25,
+        iou: float = 0.45,
+        max_det: int = 300,
+    ) -> Optional[Annotation]:
+        if not self.model:
+            return None
+
+        try:
+            results = self.model.predict(
+                image_path,
+                conf=conf,
+                iou=iou,
+                max_det=max_det,
+                verbose=False,
+            )
+
+            if not results:
+                return None
+
+            result = results[0]
+            img = Image.open(image_path)
+            width, height = img.size
+            img.close()
+
+            annotation = Annotation(
+                version="5.2.0",
+                flags={},
+                shapes=[],
+                image_path=os.path.basename(image_path),
+                image_data=None,
+                image_height=height,
+                image_width=width,
+            )
+
+            if result.boxes is not None:
+                boxes = result.boxes.xyxy.cpu().numpy()
+                classes = result.boxes.cls.cpu().numpy()
+                confs = result.boxes.conf.cpu().numpy()
+
+                for i, (box, cls, conf) in enumerate(zip(boxes, classes, confs)):
+                    x1, y1, x2, y2 = box
+                    label = str(int(cls))
+
+                    shape = Shape(
+                        label=label,
+                        shape_type="rectangle",
+                        points=[Point(float(x1), float(y1)), Point(float(x2), float(y2))],
+                    )
+                    annotation.shapes.append(shape)
+
+            if result.keypoints is not None:
+                keypoints = result.keypoints.xy.cpu().numpy()
+                for i, kp in enumerate(keypoints):
+                    for j, (x, y) in enumerate(kp):
+                        shape = Shape(
+                            label=str(j),
+                            shape_type="point",
+                            points=[Point(float(x), float(y))],
+                        )
+                        annotation.shapes.append(shape)
+
+            return annotation
+
+        except Exception as e:
+            print(f"Prediction error: {e}")
+            return None
+
+    def batch_predict(
+        self,
+        image_paths: List[str],
+        output_dir: str,
+        conf: float = 0.25,
+        iou: float = 0.45,
+        max_det: int = 300,
+        progress_callback: Optional[Callable[[int, int], None]] = None,
+        finished_callback: Optional[Callable[[int, int], None]] = None,
+    ) -> int:
+        if self.is_inferencing:
+            return 0
+
+        self.is_inferencing = True
+        ensure_dir(output_dir)
+
+        def infer_task():
+            success_count = 0
+            total = len(image_paths)
+
+            for i, img_path in enumerate(image_paths):
+                annotation = self.predict(img_path, conf, iou, max_det)
+
+                if annotation:
+                    json_path = get_json_path(img_path)
+                    output_json = os.path.join(output_dir, os.path.basename(json_path))
+                    annotation.to_json(output_json)
+                    success_count += 1
+
+                if progress_callback:
+                    progress_callback(i + 1, total)
+
+            self.is_inferencing = False
+            if finished_callback:
+                finished_callback(success_count, total)
+
+        self._infer_thread = threading.Thread(target=infer_task, daemon=True)
+        self._infer_thread.start()
+        return len(image_paths)
+
+    def stop_inference(self) -> None:
+        self.is_inferencing = False
+
+    def get_model_info(self) -> Dict[str, Any]:
+        if not self.model:
+            return {}
+
+        return {
+            "model_path": self.model_path,
+            "is_training": self.is_training,
+            "is_inferencing": self.is_inferencing,
+        }
