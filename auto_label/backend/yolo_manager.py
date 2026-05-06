@@ -1,10 +1,11 @@
 import os
 import threading
+import time
 from typing import List, Optional, Dict, Any, Callable
 from PIL import Image
 from ultralytics import YOLO
-from ..models.annotation import Annotation, Shape, Point
-from .utils import get_json_path, ensure_dir
+from models.annotation import Annotation, Shape, Point
+from backend.utils import get_json_path, ensure_dir
 
 
 class YOLOManager:
@@ -15,6 +16,9 @@ class YOLOManager:
         self.is_inferencing: bool = False
         self._train_thread: Optional[threading.Thread] = None
         self._infer_thread: Optional[threading.Thread] = None
+        self._train_epochs: int = 0
+        self._train_project: str = ""
+        self._train_name: str = ""
 
     def load_model(self, model_path: str) -> bool:
         try:
@@ -45,6 +49,9 @@ class YOLOManager:
             return None
 
         self.is_training = True
+        self._train_epochs = epochs
+        self._train_project = project
+        self._train_name = name
 
         def train_task():
             try:
@@ -58,7 +65,7 @@ class YOLOManager:
                     project=project,
                     name=name,
                     device=device,
-                    verbose=True,
+                    verbose=False,
                 )
 
                 best_model_path = os.path.join(project, name, "weights", "best.pt")
@@ -77,8 +84,47 @@ class YOLOManager:
             finally:
                 self.is_training = False
 
+        def progress_monitor():
+            """监控训练进度，通过检查结果文件获取当前epoch"""
+            last_epoch = 0
+            while self.is_training:
+                time.sleep(5)  # 每5秒检查一次
+                results_dir = os.path.join(self._train_project, self._train_name)
+                results_file = os.path.join(results_dir, "results.csv")
+
+                if os.path.exists(results_file):
+                    try:
+                        with open(results_file, 'r') as f:
+                            lines = f.readlines()
+                            if len(lines) > 1:
+                                # 最后一行是最新数据
+                                last_line = lines[-1].strip()
+                                parts = last_line.split(',')
+                                if len(parts) > 0:
+                                    try:
+                                        current_epoch = int(float(parts[0].strip()))
+                                        if progress_callback and current_epoch > last_epoch:
+                                            last_epoch = current_epoch
+                                            progress = current_epoch / self._train_epochs
+                                            progress_callback(min(1.0, progress))
+                                            print(f"Training progress: {current_epoch}/{self._train_epochs} ({progress*100:.1f}%)")
+                                    except (ValueError, IndexError):
+                                        pass
+                    except Exception as e:
+                        print(f"Error reading results.csv: {e}")
+
+                # 检查是否训练结束
+                best_path = os.path.join(results_dir, "weights", "best.pt")
+                if os.path.exists(best_path) and not self.is_training:
+                    break
+
         self._train_thread = threading.Thread(target=train_task, daemon=True)
         self._train_thread.start()
+
+        # 启动进度监控线程
+        progress_thread = threading.Thread(target=progress_monitor, daemon=True)
+        progress_thread.start()
+
         return "training_started"
 
     def stop_training(self) -> None:

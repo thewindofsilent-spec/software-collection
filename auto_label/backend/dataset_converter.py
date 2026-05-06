@@ -2,8 +2,8 @@ import os
 import shutil
 from typing import List, Optional, Dict
 from pathlib import Path
-from ..models.annotation import Annotation
-from .utils import get_json_path, ensure_dir
+from models.annotation import Annotation
+from backend.utils import get_json_path, ensure_dir
 
 
 class DatasetConverter:

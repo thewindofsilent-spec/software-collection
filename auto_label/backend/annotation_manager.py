@@ -1,8 +1,8 @@
 import os
 from typing import List, Optional, Dict, Any
 from PIL import Image
-from ..models.annotation import Annotation, Shape, Point
-from .utils import get_json_path
+from models.annotation import Annotation, Shape, Point
+from backend.utils import get_json_path
 
 
 class AnnotationManager:

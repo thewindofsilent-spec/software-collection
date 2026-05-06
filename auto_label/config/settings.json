@@ -1,0 +1,26 @@
+{
+    "training": {
+        "epochs": 100,
+        "batch": 4,
+        "imgsz": 640,
+        "workers": 1,
+        "patience": 5,
+        "project": "runs/detect",
+        "name": "train"
+    },
+    "auto_label": {
+        "conf": 0.25,
+        "iou": 0.45,
+        "max_det": 300
+    },
+    "paths": {
+        "last_image_dir": "",
+        "last_model_path": "C:\\Users\\admin\\Desktop\\label\\test\\yolo26s.pt",
+        "last_output_dir": "C:\\Users\\admin\\Desktop\\label\\test\\result",
+        "last_dataset_yaml": "file:///C:/Users/admin/Desktop/label/test/result/dataset.yaml"
+    },
+    "window": {
+        "width": 1400,
+        "height": 900
+    }
+}
