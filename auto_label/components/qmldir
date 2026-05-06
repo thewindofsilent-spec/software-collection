@@ -1,0 +1,5 @@
+ImageViewer ImageViewer.qml
+FileList FileList.qml
+ShapeList ShapeList.qml
+TrainingDialog TrainingDialog.qml
+AutoLabelDialog AutoLabelDialog.qml
