@@ -1,10 +1,6 @@
 import os
 from typing import List, Optional, Dict, Any
-<<<<<<< HEAD
 import cv2
-=======
-from PIL import Image
->>>>>>> 60c7948fc72e4c8b19848527e72c3430dbdb4c55
 from models.annotation import Annotation, Shape, Point
 from backend.utils import get_json_path
 
@@ -47,14 +43,8 @@ class AnnotationManager:
 
     def create_empty_annotation(self, image_path: str) -> Annotation:
         try:
-<<<<<<< HEAD
             img = cv2.imread(image_path)
             height, width = img.shape[:2]
-=======
-            img = Image.open(image_path)
-            width, height = img.size
-            img.close()
->>>>>>> 60c7948fc72e4c8b19848527e72c3430dbdb4c55
         except:
             width, height = 0, 0
 
