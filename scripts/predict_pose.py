@@ -282,13 +282,13 @@ def predict_and_save(
 def main():
     # ==================== 配置区域 ====================
     # 模型路径
-    MODEL_PATH = r"C:\Users\admin\Desktop\label\test\train_results\train\weights\best.pt"
+    MODEL_PATH = r"C:\Users\admin\Desktop\label\unknown\best.pt"
 
     # 输入图像目录
-    IMAGE_DIR = r"C:\Users\admin\Desktop\label\Top_rotate\handle\0515\LHR04_X1598_2026_05_14_14_00_48_lfhs"
+    IMAGE_DIR = r"C:\Users\admin\Desktop\label\test\aa"
 
     # 输出目录
-    OUTPUT_DIR = r"C:\Users\admin\Desktop\label\Top_rotate\handle\0515\LHR04_X1598_2026_05_14_14_00_48_lfhs"
+    OUTPUT_DIR = r"C:\Users\admin\Desktop\label\test\aa"
 
     # 预测参数d
     CONF = 0.25                      # 置信度阈值
